@@ -10,6 +10,5 @@ export enum ErrorCodes {
   toTokenContractAddressNotValid = 9,
   ethereumAddressRequired = 10,
   ethereumAddressNotValid = 11,
-  youMustSupplyAChainId = 12,
   invalidFromOrToContractToken = 13,
 }

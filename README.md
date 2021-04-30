@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/simple-pancakeswap-sdk.svg)](https://badge.fury.io/js/simple-pancakeswap-sdk)
 ![downloads](https://img.shields.io/npm/dw/simple-pancakeswap-sdk)
 
-Uniswap SDK which handles the routes automatically for you, changes in trade quotes reactive subscriptions, exposure to formatted easy to understand information, bringing back the best trade quotes automatically, generating transactions for you and much more. All the pancakeswap logic for you in a simple to easy understand interface to hook straight into your dApp without having to understand how it all works.
+Pancakeswap SDK which handles the routes automatically for you, changes in trade quotes reactive subscriptions, exposure to formatted easy to understand information, bringing back the best trade quotes automatically, generating transactions for you and much more. All the pancakeswap logic for you in a simple to easy understand interface to hook straight into your dApp without having to understand how it all works.
 
 Please note this is not owned or maintained by pancakeswap and is a open source package for anyone to use freely.
 
@@ -42,9 +42,7 @@ As a ethereum dApp developer you try to get your dApp experience as integrated a
 
 When I was integrating pancakeswap on our wallet I found that their `SDK` was a bit too much for what I needed. Deepdown from the dApp point of view I only really cared about getting the best price for the user with all the fees related. I also found myself having to write a lot of custom code which I thought could be abstracted away so nobody has to deal with that again. A lot of the pancakeswap features like routing is all done in their client itself which is great but not when you want to use it in a more integrated approach in your on dApp.
 
-`Uniswap` is one of the BEST projects on ethereum and one of my favourites. My motivation here is to create a library which allows more people to integrate it on their dApp without having to worry about how their amazing software links together. This makes the whole user experience better and allows more developers to get involved integrating pancakeswap in their dApp with a web2.0 experience, and on top of this also growing the usage of it.
-
-p.s I have huge love for unicorns
+My motivation here is to create a library which allows more people to integrate it on their dApp without having to worry about how their amazing software links together. This makes the whole user experience better and allows more developers to get involved integrating pancakeswap in their dApp with a web2.0 experience, and on top of this also growing the usage of it.
 
 # Installing
 
@@ -67,42 +65,23 @@ $ yarn add simple-pancakeswap-sdk
 The pancakeswap pair factory is an instance which is joint together with the `from` token and the `to` token, it is all self contained in the instance and exposes easy methods for you to call to start using pancakeswap.
 
 ```ts
-export class UniswapPair {
+export class PancakeswapPair {
   constructor(
-    private _uniswapPairContext:
-      | UniswapPairContextForChainId
-      | UniswapPairContextForProviderUrl
+    private _pancakeswapPairContext: PancakeswapPairContext
 )
 ```
 
 ```ts
-export enum ChainId {
-  MAINNET = 1,
-  ROPSTEN = 3,
-  RINKEBY = 4,
-  GÖRLI = 5,
-  KOVAN = 42,
-}
-
-interface UniswapPairContextBase {
+export interface PancakeswapPairContext {
   fromTokenContractAddress: string;
   toTokenContractAddress: string;
   ethereumAddress: string;
-  settings?: UniswapPairSettings | undefined;
-}
-
-export interface UniswapPairContextForChainId extends UniswapPairContextBase {
-  chainId: ChainId | number;
-}
-
-export interface UniswapPairContextForProviderUrl
-  extends UniswapPairContextForChainId {
-  providerUrl: string;
+  settings?: PancakeswapPairSettings | undefined;
 }
 ```
 
 ```ts
-export class UniswapPairSettings {
+export class PancakeswapPairSettings {
   slippage: number;
   deadlineMinutes: number;
   disableMultihops: boolean;
@@ -120,19 +99,18 @@ export class UniswapPairSettings {
 ```
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  fromTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  toTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  chainId: ChainId.BSC,
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
-  settings: new UniswapPairSettings({
+  settings: new PancakeswapPairSettings({
     // if not supplied it will use `0.005` which is 0.5%
     // please pass it in as a full number decimal so 0.7%
     // would be 0.007
@@ -147,7 +125,7 @@ const uniswapPair = new UniswapPair({
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 ```
 
 ## Catching error
@@ -155,8 +133,8 @@ const uniswapPairFactory = await uniswapPair.createFactory();
 I know randomly throwing errors with no error codes is a pain when writing dApps. In this package when we throw we have our own custom error. This has error codes you can map to what actually happened to allow your dApp to handle them gracefully.
 
 ```ts
-export class UniswapError extends Error {
-  public name = 'UniswapError';
+export class PancakeswapError extends Error {
+  public name = 'PancakeswapError';
   public code: ErrorCodes;
   public message: string;
   constructor(message: string, code: ErrorCodes) {
@@ -180,12 +158,11 @@ export enum ErrorCodes {
   toTokenContractAddressNotValid = 9,
   ethereumAddressRequired = 10,
   ethereumAddressNotValid = 11,
-  youMustSupplyAChainId = 12,
   invalidFromOrToContractToken = 13,
 }
 ```
 
-## Uniswap pair factory
+## Pancakeswap pair factory
 
 ### toToken
 
@@ -208,32 +185,29 @@ export interface Token {
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  fromTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  toTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const toToken = uniswapPairFactory.toToken;
+const toToken = PancakeswapPairFactory.toToken;
 console.log(toToken);
 // toToken:
 {
-  chainId: 1,
-  contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  chainId: 56,
+  contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   decimals: 18,
   symbol: 'UNI',
-  name: 'Reputation'
+  name: 'Uniswap',
 }
 ```
 
@@ -258,32 +232,29 @@ export interface Token {
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  fromTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  toTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const fromToken = uniswapPairFactory.fromToken;
+const fromToken = PancakeswapPairFactory.fromToken;
 console.log(fromToken);
 // fromToken:
 {
-  chainId: 1,
-  contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-  decimals: 8,
+  chainId: 56,
+  contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
+  decimals: 18,
   symbol: 'BAT',
-  name: 'FunFair'
+  name: 'Basic Attention Token',
 }
 ```
 
@@ -293,7 +264,7 @@ This will generate you the trade with all the information you need to show to th
 
 It will also return a `hasEnoughAllowance` in the `TradeContext` trade response, if the allowance approved for moving tokens is below the amount sending to the pancakeswap router this will be false if not true. We still return the quote but if this is `false` you need to make sure you send the approval generated data first before being able to do the swap. We advise you check the allowance before you execute the trade which you should do anyway or it will fail onchain. You can use our `hasGotEnoughAllowance` method below to check and also our `generateApproveMaxAllowanceData` to generate the transaction for the user to appove moving of the tokens.
 
-Please note `ROPSTEN`, `RINKEBY`, `GÖRLI` and `KOVAN` will only use `BNB` as a main currency unlike `MAINNET` which uses everything, so you will get less routes on those testnets.
+Please note `ROPSTEN`, `RINKEBY`, `GÖRLI` and `KOVAN` will only use `WBNB` as a main currency unlike `MAINNET` which uses everything, so you will get less routes on those testnets.
 
 ```ts
 async trade(amount: string): Promise<TradeContext>
@@ -355,7 +326,7 @@ export interface TradeContext {
   // or regen the trade info
   fromBalance: {
     // if the balance of the users has enough to perform this trade, does not consider gas prices
-    // right now if your doing ETH > ERC20
+    // right now if your doing bnb > ERC20
     hasEnough: boolean;
     // the total balance that user has on the from formatted for you already
     balance: string;
@@ -395,11 +366,7 @@ export interface Token {
 }
 
 export enum ChainId {
-  MAINNET = 1,
-  ROPSTEN = 3,
-  RINKEBY = 4,
-  GÖRLI = 5,
-  KOVAN = 42,
+  BSC = 56,
 }
 ```
 
@@ -408,34 +375,31 @@ export enum ChainId {
 #### ERC20 > ERC20
 
 ```ts
-import { UniswapPair, ChainId, TradeContext } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair,  TradeContext } from 'simple-pancakeswap-sdk';
 
 // the contract address of the token you want to convert FROM
-const fromTokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const fromTokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 // the contract address of the token you want to convert TO
-const toTokenContractAddress = '0x1985365e9f78359a9B6AD760e32412f4a445E862';
+const toTokenContractAddress = '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1';
 // the ethereum address of the user using this part of the dApp
 const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  fromTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  toTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
 // the amount is the proper entered amount
 // so if they enter 10 pass in 10
 // it will work it all out for you
-const trade = await uniswapPairFactory.trade('10');
+const trade = await PancakeswapPairFactory.trade('10');
 
 // subscribe to quote changes
 trade.quoteChanged$.subscribe((value: TradeContext) => {
@@ -452,57 +416,57 @@ console.log(trade);
   tradeExpires: 1612189240,
   routePathTokenMap: [
      {
-       chainId: 1,
-       contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+       chainId: 56,
+       contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
        decimals: 8,
        symbol: 'BAT',
        name: 'FunFair'
      },
      {
-       chainId: 1,
+       chainId: 56,
        contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
        decimals: 18,
        symbol: 'DAI',
        name: 'Dai Stablecoin'
      },
      {
-       chainId: 1,
+       chainId: 56,
        contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
        decimals: 18,
-       symbol: 'BNB',
-       name: 'Wrapped Ether'
+       symbol: 'WBNB',
+       name: 'Wrapped Binance token'
      },
      {
-       chainId: 1,
-       contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+       chainId: 56,
+       contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
        decimals: 18,
        symbol: 'UNI',
        name: 'Reputation'
      }
    ],
   routeText: 'BAT > DAI > WBNB > UNI',
-  routePath:['0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2','0x1985365e9f78359a9B6AD760e32412f4a445E862' ],
+  routePath:['0x101d82428437127bf1608f699cd651e6abf9766e', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2','0xBf5140A22578168FD562DCcF235E5D43A02ce9B1' ],
   allTriedRoutesQuotes: [
       {
         expectedConvertQuote: '0.014730394044348867',
         routePathArrayTokenMap: [
           {
-            chainId: 1,
-            contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+            chainId: 56,
+            contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
             symbol: BAT,
             decimals: 8,
             name: 'FunFair',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             decimals: 18,
-            symbol: 'BNB',
-            name: 'Wrapped Ether',
+            symbol: 'WBNB',
+            name: 'Wrapped Binance token',
           },
           {
-            chainId: 1,
-            contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+            chainId: 56,
+            contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
             symbol: 'UNI',
             decimals: 18,
             name: 'Reputation',
@@ -510,38 +474,38 @@ console.log(trade);
         ],
         routeText: 'BAT > WBNB > UNI',
         routePathArray: [
-          '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          '0x101d82428437127bf1608f699cd651e6abf9766e',
           '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+          '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         ],
       },
       {
         expectedConvertQuote: '0.014606303273323544',
         routePathArrayTokenMap: [
           {
-            chainId: 1,
-            contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+            chainId: 56,
+            contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
             symbol: 'BAT',
             decimals: 8,
             name: 'FunFair',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             decimals: 18,
             symbol: 'DAI',
             name: 'Dai Stablecoin',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             decimals: 18,
-            symbol: 'BNB',
-            name: 'Wrapped Ether',
+            symbol: 'WBNB',
+            name: 'Wrapped Binance token',
           },
           {
-            chainId: 1,
-            contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+            chainId: 56,
+            contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
             symbol: 'UNI',
             decimals: 18,
             name: 'Reputation',
@@ -549,39 +513,39 @@ console.log(trade);
         ],
         routeText: 'BAT > DAI > WBNB > UNI',
         routePathArray: [
-          '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          '0x101d82428437127bf1608f699cd651e6abf9766e',
           '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+          '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         ],
       },
       {
         expectedConvertQuote: '0.013997397994408657',
         routePathArrayTokenMap: [
           {
-            chainId: 1,
-            contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+            chainId: 56,
+            contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
             symbol: 'BAT',
             decimals: 8,
             name: 'FunFair',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             decimals: 18,
             symbol: 'USDC',
             name: 'USD Coin',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             decimals: 18,
-            symbol: 'BNB',
-            name: 'Wrapped Ether',
+            symbol: 'WBNB',
+            name: 'Wrapped Binance token',
           },
           {
-            chainId: 1,
-            contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+            chainId: 56,
+            contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
             symbol: 'UNI',
             decimals: 18,
             name: 'Reputation',
@@ -589,39 +553,39 @@ console.log(trade);
         ],
         routeText: 'BAT > USDC > WBNB > UNI',
         routePathArray: [
-          '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          '0x101d82428437127bf1608f699cd651e6abf9766e',
           '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+          '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         ],
       },
       {
         expectedConvertQuote: '0.000000298264906505',
         routePathArrayTokenMap: [
           {
-            chainId: 1,
-            contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+            chainId: 56,
+            contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
             symbol: 'BAT',
             decimals: 8,
             name: 'FunFair',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
             decimals: 18,
             symbol: 'USDT',
             name: 'Tether USD',
           },
           {
-            chainId: 1,
+            chainId: 56,
             contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             decimals: 18,
-            symbol: 'BNB',
-            name: 'Wrapped Ether',
+            symbol: 'WBNB',
+            name: 'Wrapped Binance token',
           },
           {
-            chainId: 1,
-            contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+            chainId: 56,
+            contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
             symbol: 'UNI',
             decimals: 18,
             name: 'Reputation',
@@ -629,24 +593,24 @@ console.log(trade);
         ],
         routeText: 'BAT > USDT > WBNB > UNI',
         routePathArray: [
-          '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          '0x101d82428437127bf1608f699cd651e6abf9766e',
           '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+          '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         ],
       },
   ],
   hasEnoughAllowance: true,
   toToken: {
-    chainId: 1,
-    contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+    chainId: 56,
+    contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
     decimals: 18,
     symbol: 'UNI',
     name: 'Reputation'
   },
   fromToken: {
-    chainId: 1,
-    contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+    chainId: 56,
+    contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
     decimals: 8,
     symbol: 'BAT',
     name: 'FunFair'
@@ -667,32 +631,29 @@ console.log(trade);
 trade.destroy();
 ```
 
-#### ETH > ERC20
+#### bnb > ERC20
 
 ```ts
-import { UniswapPair, BNB, ChainId, TradeContext } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair, WBNB, TradeContext } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
-  // use the BNB import from the lib, bare in mind you should use the
+const pancakeswapPair = new PancakeswapPair({
+  // use the WBNB import from the lib, bare in mind you should use the
   // network which yours on, so if your on rinkeby you should use
-  // BNB.RINKEBY
-  fromTokenContractAddress: BNB.token().contractAddress,
+  // WBNB.RINKEBY
+  fromTokenContractAddress: WBNB.token().contractAddress,
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  toTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
 // the amount is the proper entered amount
 // so if they enter 10 pass in 10 and
 // it will work it all out for you
-const trade = await uniswapPairFactory.trade('10');
+const trade = await PancakeswapPairFactory.trade('10');
 
 
 // subscribe to quote changes
@@ -710,15 +671,15 @@ console.log(trade);
   tradeExpires: 1612189240,
   routePathTokenMap: [
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      symbol: 'BNB',
+      symbol: 'WBNB',
       decimals: 18,
-      name: 'Wrapped Ether',
+      name: 'Wrapped Binance token',
     },
     {
-      chainId: 1,
-      contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      chainId: 56,
+      contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
       symbol: 'BAT',
       decimals: 8,
       name: 'FunFair',
@@ -727,22 +688,22 @@ console.log(trade);
   routeText: 'WBNB > BAT',
   routePath: [
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+    '0x101d82428437127bf1608f699cd651e6abf9766e',
   ],
   hasEnoughAllowance: true,
   toToken: {
-    chainId: 1,
-    contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+    chainId: 56,
+    contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
     symbol: 'BAT',
     decimals: 8,
     name: 'FunFair',
   },
   fromToken: {
-    chainId: 1,
+    chainId: 56,
     contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    symbol: 'BNB',
+    symbol: 'WBNB',
     decimals: 18,
-    name: 'Wrapped Ether',
+    name: 'Wrapped Binance token',
   },
   fromBalance: {
     hasEnough: false,
@@ -760,15 +721,15 @@ console.log(trade);
       expectedConvertQuote: '449123.82671566',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -777,29 +738,29 @@ console.log(trade);
       routeText: 'WBNB > BAT',
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '446400.4834047',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -809,29 +770,29 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '446400.4834047',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -841,29 +802,29 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '446356.68778218',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -873,29 +834,29 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '446356.68778218',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -905,29 +866,29 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '446345.24608428',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -937,29 +898,29 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '446345.24608428',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -969,29 +930,29 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '347402.73288796',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1001,36 +962,36 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '346246.52439964',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1041,36 +1002,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '346246.52439964',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1081,36 +1042,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '346246.52439964',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1121,36 +1082,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '345845.48248206',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1161,36 +1122,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '345845.48248206',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1201,36 +1162,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '345845.48248206',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1241,29 +1202,29 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153353.27776886',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1273,36 +1234,36 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153171.51955671',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1313,36 +1274,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153171.51955671',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1353,36 +1314,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153171.51955671',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1393,36 +1354,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153099.84287111',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1433,36 +1394,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153099.84287111',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1473,36 +1434,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '153099.84287111',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1513,36 +1474,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '10090.42827381',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1553,36 +1514,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '10090.42827381',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1593,36 +1554,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '176.25846115',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1633,36 +1594,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '176.25846115',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1673,36 +1634,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1713,36 +1674,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1753,36 +1714,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1793,29 +1754,29 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1825,36 +1786,36 @@ console.log(trade);
       routePathArray: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1865,36 +1826,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1905,36 +1866,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1945,36 +1906,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -1985,36 +1946,36 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
     {
       expectedConvertQuote: '0.00167195',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
@@ -2025,7 +1986,7 @@ console.log(trade);
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
       ],
     },
   ],
@@ -2036,32 +1997,29 @@ trade.destroy();
 
 ```
 
-#### ERC20 > ETH
+#### ERC20 > bnb
 
 ```ts
-import { UniswapPair, BNB, ChainId, TradeContext } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair, WBNB, TradeContext } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-  // use the BNB import from the lib, bare in mind you should use the
+  fromTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
+  // use the WBNB import from the lib, bare in mind you should use the
   // network which yours on, so if your on rinkeby you should use
-  // BNB.RINKEBY
-  toTokenContractAddress: BNB.token().contractAddress,
+  // WBNB.RINKEBY
+  toTokenContractAddress: WBNB.token().contractAddress,
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
 // the amount is the proper entered amount
 // so if they enter 10 pass in 10
 // it will work it all out for you
-const trade = await uniswapPairFactory.trade('10');
+const trade = await PancakeswapPairFactory.trade('10');
 
 // subscribe to quote changes
 trade.quoteChanged$.subscribe((value: TradeContext) => {
@@ -2078,37 +2036,37 @@ console.log(trade);
   tradeExpires: 1612189240,
   routePathTokenMap: [
     {
-      chainId: 1,
-      contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      chainId: 56,
+      contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
       symbol: 'BAT',
       decimals: 8,
       name: 'FunFair',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       decimals: 18,
       symbol: 'DAI',
       name: 'Dai Stablecoin',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
       decimals: 18,
       symbol: 'COMP',
       name: 'Compound',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      symbol: 'BNB',
+      symbol: 'WBNB',
       decimals: 18,
-      name: 'Wrapped Ether',
+      name: 'Wrapped Binance token',
     },
   ],
   routeText: 'BAT > DAI > COMP > WBNB',
   routePath: [
-    '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+    '0x101d82428437127bf1608f699cd651e6abf9766e',
     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     '0xc00e94Cb662C3520282E6f5717214004A7f26888',
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2118,37 +2076,37 @@ console.log(trade);
       expectedConvertQuote: '0.00022151807282109',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > COMP > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2158,37 +2116,37 @@ console.log(trade);
       expectedConvertQuote: '0.00022151807282109',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > COMP > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2198,23 +2156,23 @@ console.log(trade);
       expectedConvertQuote: '0.000217400884509221',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       ],
     },
@@ -2222,30 +2180,30 @@ console.log(trade);
       expectedConvertQuote: '0.000216692105524981',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       ],
@@ -2254,77 +2212,37 @@ console.log(trade);
       expectedConvertQuote: '0.000216165414503092',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > USDC > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-        '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      ],
-    },
-    {
-      expectedConvertQuote: '0.000216165414503092',
-      routePathArrayTokenMap: [
-        {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-          symbol: 'BAT',
-          decimals: 8,
-          name: 'FunFair',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-          decimals: 18,
-          symbol: 'DAI',
-          name: 'Dai Stablecoin',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-          decimals: 18,
-          symbol: 'USDC',
-          name: 'USD Coin',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
-          decimals: 18,
-          name: 'Wrapped Ether',
-        },
-      ],
-      routeText: 'BAT > DAI > USDC > WBNB',
-      routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2334,37 +2252,77 @@ console.log(trade);
       expectedConvertQuote: '0.000216165414503092',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > USDC > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
+        '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      ],
+    },
+    {
+      expectedConvertQuote: '0.000216165414503092',
+      routePathArrayTokenMap: [
+        {
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
+          symbol: 'BAT',
+          decimals: 8,
+          name: 'FunFair',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          decimals: 18,
+          symbol: 'DAI',
+          name: 'Dai Stablecoin',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+          decimals: 18,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          symbol: 'WBNB',
+          decimals: 18,
+          name: 'Wrapped Binance token',
+        },
+      ],
+      routeText: 'BAT > DAI > USDC > WBNB',
+      routePathArray: [
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2374,37 +2332,37 @@ console.log(trade);
       expectedConvertQuote: '0.000216113740987982',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > USDT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2414,37 +2372,37 @@ console.log(trade);
       expectedConvertQuote: '0.000216113740987982',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > USDT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2454,37 +2412,37 @@ console.log(trade);
       expectedConvertQuote: '0.000216113740987982',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > DAI > USDT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2494,30 +2452,30 @@ console.log(trade);
       expectedConvertQuote: '0.000207416610491746',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       ],
@@ -2526,77 +2484,37 @@ console.log(trade);
       expectedConvertQuote: '0.000206879660311982',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > USDT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      ],
-    },
-    {
-      expectedConvertQuote: '0.000206879660311982',
-      routePathArrayTokenMap: [
-        {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-          symbol: 'BAT',
-          decimals: 8,
-          name: 'FunFair',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-          decimals: 18,
-          symbol: 'USDC',
-          name: 'USD Coin',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-          decimals: 18,
-          symbol: 'USDT',
-          name: 'Tether USD',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
-          decimals: 18,
-          name: 'Wrapped Ether',
-        },
-      ],
-      routeText: 'BAT > USDC > USDT > WBNB',
-      routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2606,37 +2524,77 @@ console.log(trade);
       expectedConvertQuote: '0.000206879660311982',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > USDT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
+        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      ],
+    },
+    {
+      expectedConvertQuote: '0.000206879660311982',
+      routePathArrayTokenMap: [
+        {
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
+          symbol: 'BAT',
+          decimals: 8,
+          name: 'FunFair',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+          decimals: 18,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          symbol: 'WBNB',
+          decimals: 18,
+          name: 'Wrapped Binance token',
+        },
+      ],
+      routeText: 'BAT > USDC > USDT > WBNB',
+      routePathArray: [
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2646,37 +2604,37 @@ console.log(trade);
       expectedConvertQuote: '0.000206675889551395',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > DAI > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2686,37 +2644,37 @@ console.log(trade);
       expectedConvertQuote: '0.000206675889551395',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > DAI > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2726,37 +2684,37 @@ console.log(trade);
       expectedConvertQuote: '0.000206675889551395',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > DAI > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2766,37 +2724,37 @@ console.log(trade);
       expectedConvertQuote: '0.000201332888879835',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > COMP > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2806,37 +2764,37 @@ console.log(trade);
       expectedConvertQuote: '0.000201332888879835',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDC > COMP > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2846,37 +2804,37 @@ console.log(trade);
       expectedConvertQuote: '0.00000000454541448',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > COMP > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2886,37 +2844,37 @@ console.log(trade);
       expectedConvertQuote: '0.00000000454541448',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
           decimals: 18,
           symbol: 'COMP',
           name: 'Compound',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > COMP > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xc00e94Cb662C3520282E6f5717214004A7f26888',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -2926,30 +2884,30 @@ console.log(trade);
       expectedConvertQuote: '0.000000004421040886',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       ],
@@ -2958,77 +2916,37 @@ console.log(trade);
       expectedConvertQuote: '0.000000004406314787',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > DAI > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-        '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      ],
-    },
-    {
-      expectedConvertQuote: '0.000000004406314787',
-      routePathArrayTokenMap: [
-        {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-          symbol: 'BAT',
-          decimals: 8,
-          name: 'FunFair',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-          decimals: 18,
-          symbol: 'USDT',
-          name: 'Tether USD',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-          decimals: 18,
-          symbol: 'DAI',
-          name: 'Dai Stablecoin',
-        },
-        {
-          chainId: 1,
-          contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
-          decimals: 18,
-          name: 'Wrapped Ether',
-        },
-      ],
-      routeText: 'BAT > USDT > DAI > WBNB',
-      routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -3038,37 +2956,77 @@ console.log(trade);
       expectedConvertQuote: '0.000000004406314787',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
           decimals: 18,
           symbol: 'DAI',
           name: 'Dai Stablecoin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > DAI > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
+        '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      ],
+    },
+    {
+      expectedConvertQuote: '0.000000004406314787',
+      routePathArrayTokenMap: [
+        {
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
+          symbol: 'BAT',
+          decimals: 8,
+          name: 'FunFair',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          decimals: 18,
+          symbol: 'DAI',
+          name: 'Dai Stablecoin',
+        },
+        {
+          chainId: 56,
+          contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          symbol: 'WBNB',
+          decimals: 18,
+          name: 'Wrapped Binance token',
+        },
+      ],
+      routeText: 'BAT > USDT > DAI > WBNB',
+      routePathArray: [
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -3078,37 +3036,37 @@ console.log(trade);
       expectedConvertQuote: '0.000000003689610342',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > USDC > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -3118,37 +3076,37 @@ console.log(trade);
       expectedConvertQuote: '0.000000003689610342',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > USDC > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -3158,37 +3116,37 @@ console.log(trade);
       expectedConvertQuote: '0.000000003689610342',
       routePathArrayTokenMap: [
         {
-          chainId: 1,
-          contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+          chainId: 56,
+          contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
           symbol: 'BAT',
           decimals: 8,
           name: 'FunFair',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
           decimals: 18,
           symbol: 'USDC',
           name: 'USD Coin',
         },
         {
-          chainId: 1,
+          chainId: 56,
           contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-          symbol: 'BNB',
+          symbol: 'WBNB',
           decimals: 18,
-          name: 'Wrapped Ether',
+          name: 'Wrapped Binance token',
         },
       ],
       routeText: 'BAT > USDT > USDC > WBNB',
       routePathArray: [
-        '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        '0x101d82428437127bf1608f699cd651e6abf9766e',
         '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -3197,15 +3155,15 @@ console.log(trade);
   ],
   hasEnoughAllowance: true,
   toToken: {
-    chainId: 1,
+    chainId: 56,
     contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    symbol: 'BNB',
+    symbol: 'WBNB',
     decimals: 18,
-    name: 'Wrapped Ether',
+    name: 'Wrapped Binance token',
   },
   fromToken: {
-    chainId: 1,
-    contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+    chainId: 56,
+    contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
     symbol: 'BAT',
     decimals: 8,
     name: 'FunFair',
@@ -3229,7 +3187,7 @@ trade.destroy();
 
 ### hasGotEnoughAllowance
 
-This method will return `true` or `false` if the user has enough allowance to move the tokens. If you call this when doing `eth` > `erc20` it will always return true as you only need to check this when moving `erc20 > eth` and `erc20 > erc20`.
+This method will return `true` or `false` if the user has enough allowance to move the tokens. If you call this when doing `bnb` > `erc20` it will always return true as you only need to check this when moving `erc20 > bnb` and `erc20 > erc20`.
 
 ```ts
 async hasGotEnoughAllowance(amount: string): Promise<boolean>
@@ -3238,24 +3196,21 @@ async hasGotEnoughAllowance(amount: string): Promise<boolean>
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  fromTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  toTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const hasGotEnoughAllowance = await uniswapPairFactory.hasGotEnoughAllowance(
+const hasGotEnoughAllowance = await PancakeswapPairFactory.hasGotEnoughAllowance(
   '10'
 );
 console.log(hasGotEnoughAllowance);
@@ -3264,7 +3219,7 @@ true;
 
 ### allowance
 
-This method will return the allowance the user has to move tokens from the from token they have picked. This is always returned as a hex and is not formatted for you. If you call this when doing `eth` > `erc20` it will always return the max hex as you only need to check this when moving `erc20 > eth` and `erc20 > erc20`.
+This method will return the allowance the user has to move tokens from the from token they have picked. This is always returned as a hex and is not formatted for you. If you call this when doing `bnb` > `erc20` it will always return the max hex as you only need to check this when moving `erc20 > bnb` and `erc20 > erc20`.
 
 ```ts
 async allowance(): Promise<string>
@@ -3273,31 +3228,28 @@ async allowance(): Promise<string>
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  fromTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  toTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const allowance = await uniswapPairFactory.allowance();
+const allowance = await PancakeswapPairFactory.allowance();
 console.log(allowance);
 // '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 ```
 
 ### generateApproveMaxAllowanceData
 
-This method will generate the transaction for the approval of moving tokens for the user. This uses the max hex possible which means they will not have to do this again if they want to swap from the SAME from token again later. Please note the approval is per each erc20 token, so if they picked another from token after they swapped they would need to do this again. You have to send the and sign the transaction from within your dApp. Remember when they do not have enough allowance it will mean doing 2 transaction, 1 to extend the allowance using this transaction then the next one to actually execute the trade. If you call this when doing `eth` > `erc20` it will always throw an error as you only need to do this when moving `erc20 > eth` and `erc20 > erc20`.
+This method will generate the transaction for the approval of moving tokens for the user. This uses the max hex possible which means they will not have to do this again if they want to swap from the SAME from token again later. Please note the approval is per each erc20 token, so if they picked another from token after they swapped they would need to do this again. You have to send the and sign the transaction from within your dApp. Remember when they do not have enough allowance it will mean doing 2 transaction, 1 to extend the allowance using this transaction then the next one to actually execute the trade. If you call this when doing `bnb` > `erc20` it will always throw an error as you only need to do this when moving `erc20 > bnb` and `erc20 > erc20`.
 
 ```ts
 async generateApproveMaxAllowanceData(): Promise<Transaction>
@@ -3315,34 +3267,31 @@ export interface Transaction {
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
 // the contract address of the token you want to convert FROM
-const fromTokenContractAddress = '0x1985365e9f78359a9B6AD760e32412f4a445E862';
+const fromTokenContractAddress = '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1';
 // the contract address of the token you want to convert TO
-const toTokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const toTokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 // the ethereum address of the user using this part of the dApp
 const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  fromTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  toTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const transaction = await uniswapPairFactory.generateApproveMaxAllowanceData();
+const transaction = await PancakeswapPairFactory.generateApproveMaxAllowanceData();
 console.log(transaction);
 {
-  to: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  to: '0x101d82428437127bf1608f699cd651e6abf9766e',
   from: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
   data:
    '0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -3361,58 +3310,55 @@ async findBestRoute(amountToTrade: string): Promise<RouteQuote>
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  fromTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  toTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const bestRoute = await uniswapPairFactory.findBestRoute('10');
+const bestRoute = await PancakeswapPairFactory.findBestRoute('10');
 console.log(bestRoute);
 {
   expectedConvertQuote: "0.014634280991384697",
   routePathArrayTokenMap: [
       {
-        chainId: 1,
-        contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        chainId: 56,
+        contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
         decimals: 8,
         symbol: 'BAT',
         name: 'FunFair'
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         decimals: 18,
         symbol: 'DAI',
         name: 'Dai Stablecoin',
       },
      {
-       chainId: 1,
+       chainId: 56,
        contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
        decimals: 18,
-       symbol: 'BNB',
-       name: 'Wrapped Ether'
+       symbol: 'WBNB',
+       name: 'Wrapped Binance token'
      },
-     { chainId: 1,
-       contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+     { chainId: 56,
+       contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
        decimals: 18,
        symbol: 'UNI',
        name: 'Reputation'
       }
     ],
   routeText: 'BAT > WBNB > UNI',
-  routePathArray: ['0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' '0x1985365e9f78359a9B6AD760e32412f4a445E862']
+  routePathArray: ['0x101d82428437127bf1608f699cd651e6abf9766e', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1']
 }
 ```
 
@@ -3427,24 +3373,21 @@ async findAllPossibleRoutesWithQuote(amountToTrade: string): Promise<RouteQuote[
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  fromTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  toTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const allPossibleRoutes = await uniswapPairFactory.findAllPossibleRoutesWithQuote(
+const allPossibleRoutes = await PancakeswapPairFactory.findAllPossibleRoutesWithQuote(
   '10'
 );
 console.log(allPossibleRoutes);
@@ -3453,29 +3396,29 @@ console.log(allPossibleRoutes);
     expectedConvertQuote: '0.014634280991384697',
     routePathArrayTokenMap: [
       {
-        chainId: 1,
-        contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        chainId: 56,
+        contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
         decimals: 8,
         symbol: 'BAT',
         name: 'FunFair',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         decimals: 18,
         symbol: 'DAI',
         name: 'Dai Stablecoin',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         decimals: 18,
-        symbol: 'BNB',
-        name: 'Wrapped Ether',
+        symbol: 'WBNB',
+        name: 'Wrapped Binance token',
       },
       {
-        chainId: 1,
-        contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+        chainId: 56,
+        contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         decimals: 18,
         symbol: 'UNI',
         name: 'Reputation',
@@ -3483,32 +3426,32 @@ console.log(allPossibleRoutes);
     ],
     routeText: 'BAT > DAI > WBNB > UNI',
     routePathArray: [
-      '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      '0x101d82428437127bf1608f699cd651e6abf9766e',
       '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
     ],
   },
   {
     expectedConvertQuote: '0.014506490902564688',
     routePathArrayTokenMap: [
       {
-        chainId: 1,
-        contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        chainId: 56,
+        contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
         decimals: 8,
         symbol: 'BAT',
         name: 'FunFair',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         decimals: 18,
-        symbol: 'BNB',
-        name: 'Wrapped Ether',
+        symbol: 'WBNB',
+        name: 'Wrapped Binance token',
       },
       {
-        chainId: 1,
-        contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+        chainId: 56,
+        contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         decimals: 18,
         symbol: 'UNI',
         name: 'Reputation',
@@ -3516,38 +3459,38 @@ console.log(allPossibleRoutes);
     ],
     routeText: 'BAT > WBNB > UNI',
     routePathArray: [
-      '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      '0x101d82428437127bf1608f699cd651e6abf9766e',
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
     ],
   },
   {
     expectedConvertQuote: '0.011506490902564688',
     routePathArrayTokenMap: [
       {
-        chainId: 1,
-        contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        chainId: 56,
+        contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
         decimals: 8,
         symbol: 'BAT',
         name: 'FunFair',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         decimals: 18,
         symbol: 'USDC',
         name: 'USD Coin',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         decimals: 18,
-        symbol: 'BNB',
-        name: 'Wrapped Ether',
+        symbol: 'WBNB',
+        name: 'Wrapped Binance token',
       },
       {
-        chainId: 1,
-        contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+        chainId: 56,
+        contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         decimals: 18,
         symbol: 'UNI',
         name: 'Reputation',
@@ -3555,39 +3498,39 @@ console.log(allPossibleRoutes);
     ],
     routeText: 'BAT > USDC > WBNB > UNI',
     routePathArray: [
-      '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      '0x101d82428437127bf1608f699cd651e6abf9766e',
       '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
     ],
   },
   {
     expectedConvertQuote: '0.000000291402712857',
     routePathArrayTokenMap: [
       {
-        chainId: 1,
-        contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+        chainId: 56,
+        contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
         decimals: 8,
         symbol: 'BAT',
         name: 'FunFair',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         decimals: 18,
         symbol: 'USDT',
         name: 'Tether USD',
       },
       {
-        chainId: 1,
+        chainId: 56,
         contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         decimals: 18,
-        symbol: 'BNB',
-        name: 'Wrapped Ether',
+        symbol: 'WBNB',
+        name: 'Wrapped Binance token',
       },
       {
-        chainId: 1,
-        contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+        chainId: 56,
+        contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
         decimals: 18,
         symbol: 'UNI',
         name: 'Reputation',
@@ -3595,10 +3538,10 @@ console.log(allPossibleRoutes);
     ],
     routeText: 'BAT > USDT > WBNB > UNI',
     routePathArray: [
-      '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      '0x101d82428437127bf1608f699cd651e6abf9766e',
       '0xdAC17F958D2ee523a2206206994597C13D831ec7',
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
     ],
   },
 ];
@@ -3625,44 +3568,41 @@ export interface Token {
 #### Usage
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
-const uniswapPair = new UniswapPair({
+const pancakeswapPair = new PancakeswapPair({
   // the contract address of the token you want to convert FROM
-  fromTokenContractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  fromTokenContractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
   // the contract address of the token you want to convert TO
-  toTokenContractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  toTokenContractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-  chainId: ChainId.BSC,
 });
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
-const allRoutes = await uniswapPairFactory.findAllPossibleRoutes();
+const allRoutes = await PancakeswapPairFactory.findAllPossibleRoutes();
 console.log(allRoutes);
 [
   [
     {
-      chainId: 1,
-      contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      chainId: 56,
+      contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
       decimals: 8,
       symbol: 'BAT',
       name: 'FunFair',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       decimals: 18,
-      symbol: 'BNB',
-      name: 'Wrapped Ether',
+      symbol: 'WBNB',
+      name: 'Wrapped Binance token',
     },
     {
-      chainId: 1,
-      contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      chainId: 56,
+      contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
       decimals: 18,
       symbol: 'UNI',
       name: 'Reputation',
@@ -3670,29 +3610,29 @@ console.log(allRoutes);
   ],
   [
     {
-      chainId: 1,
-      contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      chainId: 56,
+      contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
       decimals: 8,
       symbol: 'BAT',
       name: 'FunFair',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
       decimals: 18,
       symbol: 'USDT',
       name: 'Tether USD',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       decimals: 18,
-      symbol: 'BNB',
-      name: 'Wrapped Ether',
+      symbol: 'WBNB',
+      name: 'Wrapped Binance token',
     },
     {
-      chainId: 1,
-      contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      chainId: 56,
+      contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
       decimals: 18,
       symbol: 'UNI',
       name: 'Reputation',
@@ -3700,29 +3640,29 @@ console.log(allRoutes);
   ],
   [
     {
-      chainId: 1,
-      contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      chainId: 56,
+      contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
       decimals: 8,
       symbol: 'BAT',
       name: 'FunFair',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       decimals: 18,
       symbol: 'USDC',
       name: 'USD Coin',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       decimals: 18,
-      symbol: 'BNB',
-      name: 'Wrapped Ether',
+      symbol: 'WBNB',
+      name: 'Wrapped Binance token',
     },
     {
-      chainId: 1,
-      contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      chainId: 56,
+      contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
       decimals: 18,
       symbol: 'UNI',
       name: 'Reputation',
@@ -3730,29 +3670,29 @@ console.log(allRoutes);
   ],
   [
     {
-      chainId: 1,
-      contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+      chainId: 56,
+      contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
       decimals: 8,
       symbol: 'BAT',
       name: 'FunFair',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       decimals: 18,
       symbol: 'DAI',
       name: 'Dai Stablecoin',
     },
     {
-      chainId: 1,
+      chainId: 56,
       contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       decimals: 18,
-      symbol: 'BNB',
-      name: 'Wrapped Ether',
+      symbol: 'WBNB',
+      name: 'Wrapped Binance token',
     },
     {
-      chainId: 1,
-      contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+      chainId: 56,
+      contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
       decimals: 18,
       symbol: 'UNI',
       name: 'Reputation',
@@ -3786,20 +3726,19 @@ export interface Token {
 #### Usage
 
 ```ts
-import { TokenFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokenFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const tokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 
 const tokenFactoryPublic = new TokenFactoryPublic(
-  toTokenContractAddress,
-  ChainId.BSC
+  toTokenContractAddress
 );
 
 const token = await tokenFactoryPublic.getToken();
 console.log(token);
 {
-  chainId: 1,
-  contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+  chainId: 56,
+  contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
   decimals: 8,
   symbol: 'BAT',
   name: 'FunFair',
@@ -3808,7 +3747,7 @@ console.log(token);
 
 ### allowance
 
-This method will return the allowance the user has allowed to be able to be moved on his behalf. Uniswap needs this allowance to be higher then the amount swapping for it to be able to move the tokens for the user. This is always returned as a hex and not formatted for you.
+This method will return the allowance the user has allowed to be able to be moved on his behalf. Pancakeswap needs this allowance to be higher then the amount swapping for it to be able to move the tokens for the user. This is always returned as a hex and not formatted for you.
 
 ```ts
 async allowance(ethereumAddress: string): Promise<string>
@@ -3817,14 +3756,11 @@ async allowance(ethereumAddress: string): Promise<string>
 #### Usage
 
 ```ts
-import { TokenFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokenFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const tokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 
-const tokenFactoryPublic = new TokenFactoryPublic(
-  toTokenContractAddress,
-  ChainId.BSC
-);
+const tokenFactoryPublic = new TokenFactoryPublic(toTokenContractAddress);
 
 const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
 
@@ -3844,14 +3780,11 @@ async balanceOf(ethereumAddress: string): Promise<string>
 #### Usage
 
 ```ts
-import { TokenFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokenFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const tokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 
-const tokenFactoryPublic = new TokenFactoryPublic(
-  toTokenContractAddress,
-  ChainId.BSC
-);
+const tokenFactoryPublic = new TokenFactoryPublic(toTokenContractAddress);
 
 const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
 
@@ -3871,16 +3804,11 @@ async totalSupply(): Promise<string>
 #### Usage
 
 ```ts
-import { TokenFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokenFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const tokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 
-const tokenFactoryPublic = new TokenFactoryPublic(
-  toTokenContractAddress,
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-);
+const tokenFactoryPublic = new TokenFactoryPublic(toTokenContractAddress);
 
 const totalSupply = await tokenFactoryPublic.totalSupply();
 console.log(totalSupply);
@@ -3898,16 +3826,11 @@ generateApproveAllowanceData(spender: string, value: string): string
 #### Usage
 
 ```ts
-import { TokenFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokenFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const tokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 
-const tokenFactoryPublic = new TokenFactoryPublic(
-  tokenContractAddress,
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-);
+const tokenFactoryPublic = new TokenFactoryPublic(tokenContractAddress);
 
 // the contract address for which you are allowing to move tokens on your behalf
 const spender = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
@@ -3942,15 +3865,12 @@ export interface AllowanceAndBalanceOf {
 #### Usage
 
 ```ts
-import { TokenFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokenFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const tokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 
 const tokenFactoryPublic = new TokenFactoryPublic(
-  tokenContractAddress,
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
+  tokenContractAddress
 );
 
 const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
@@ -3990,30 +3910,26 @@ export interface Token {
 #### Usage
 
 ```ts
-import { TokensFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { TokensFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const tokensFactoryPublic = new TokensFactoryPublic(
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-);
+const tokensFactoryPublic = new TokensFactoryPublic();
 
 const tokens = await tokensFactoryPublic.getTokens([
-  '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
-  '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+  '0x101d82428437127bf1608f699cd651e6abf9766e',
+  '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
 ]);
 console.log(tokens);
 [
   {
-    chainId: 1,
-    contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862',
+    chainId: 56,
+    contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
     symbol: 'UNI',
     decimals: 18,
     name: 'Reputation',
   },
   {
-    chainId: 1,
-    contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+    chainId: 56,
+    contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
     symbol: 'BAT',
     decimals: 8,
     name: 'FunFair',
@@ -4023,10 +3939,10 @@ console.log(tokens);
 
 ### Contract calls
 
-Along side this we also expose in here the pancakeswap pair contract calls. Any methods which are state changing will return you the data and you will have to send it. Only use these if your doing any bespoke stuff with pairs. The `UniswapPairContractFactoryPublic` is also exposed in the package which you can pass it a chainId or a providerUrl
+Along side this we also expose in here the pancakeswap pair contract calls. Any methods which are state changing will return you the data and you will have to send it. Only use these if your doing any bespoke stuff with pairs. The `PancakeswapPairContractFactoryPublic` is also exposed in the package which you can pass it a chainId or a providerUrl
 
 ```ts
-export interface UniswapPair {
+export interface PancakeswapPair {
   async allPairs(
     parameter0: BigNumberish,
   ): Promise<string>;
@@ -4061,53 +3977,43 @@ export interface UniswapPair {
 
 #### Usage
 
-#### In UniswapPairFactory
+#### In PancakeswapPairFactory
 
 ```ts
-import { UniswapPair, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapPair } from 'simple-pancakeswap-sdk';
 
 // the contract address of the token you want to convert FROM
-const fromTokenContractAddress = '0x1985365e9f78359a9B6AD760e32412f4a445E862';
+const fromTokenContractAddress = '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1';
 // the contract address of the token you want to convert TO
-const toTokenContractAddress = '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
+const toTokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
 // the ethereum address of the user using this part of the dApp
 const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
 
-const uniswapPair = new UniswapPair(
+const pancakeswapPair = new PancakeswapPair(
   toTokenContractAddress,
   fromTokenContractAddress,
-  ethereumAddress,
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
+  ethereumAddress
 );
 
 // now to create the factory you just do
-const uniswapPairFactory = await uniswapPair.createFactory();
+const pancakeswapPairFactory = await PancakeswapPair.createFactory();
 
 // contract calls our here, this is only for the pancakeswap pair contract https://etherscan.io/address/0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f#code
-uniswapPairFactory.contractCalls;
+PancakeswapPairFactory.contractCalls;
 ```
 
-#### Using UniswapPairContractFactoryPublic on its own
+#### Using PancakeswapPairContractFactoryPublic on its own
 
 ```ts
-import {
-  UniswapPairContractFactoryPublic,
-  ChainId,
-} from 'simple-pancakeswap-sdk';
+import { PancakeswapPairContractFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const uniswapPairContractFactoryPublic = new UniswapPairContractFactoryPublic(
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-);
+const pancakeswapPairContractFactoryPublic = new PancakeswapPairContractFactoryPublic();
 
 // contract calls our here, this is only for the pancakeswap pair contract https://etherscan.io/address/0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f#code
-uniswapPairContractFactoryPublic;
+PancakeswapPairContractFactoryPublic;
 ```
 
-### UniswapContractFactoryPublic
+### PancakeswapContractFactoryPublic
 
 ```ts
 async allPairs(parameter0: BigNumberish): Promise<string>;
@@ -4123,19 +4029,15 @@ async getPair(token0: string, token1: string): Promise<string>;
 ### Usage
 
 ```ts
-import { UniswapContractFactoryPublic, ChainId } from 'simple-pancakeswap-sdk';
+import { PancakeswapContractFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const uniswapContractFactoryPublic = new UniswapContractFactoryPublic(
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-);
+const pancakeswapContractFactoryPublic = new PancakeswapContractFactoryPublic();
 
 // contract calls our here https://etherscan.io/address/0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f#code
-uniswapContractFactoryPublic;
+PancakeswapContractFactoryPublic;
 ```
 
-### UniswapRouterContractFactoryPublic
+### PancakeswapRouterContractFactoryPublic
 
 ```ts
 // state changing
@@ -4330,19 +4232,12 @@ swapExactTokensForTokensSupportingFeeOnTransferTokens(
 ### Usage
 
 ```ts
-import {
-  UniswapRouterContractFactoryPublic,
-  ChainId,
-} from 'simple-pancakeswap-sdk';
+import { PancakeswapRouterContractFactoryPublic } from 'simple-pancakeswap-sdk';
 
-const uniswapRouterContractFactoryPublic = new UniswapRouterContractFactoryPublic(
-  ChainId.BSC
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
-);
+const pancakeswapRouterContractFactoryPublic = new PancakeswapRouterContractFactoryPublic();
 
 // contract calls our here https://etherscan.io/address/0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D#code
-uniswapRouterContractFactoryPublic;
+PancakeswapRouterContractFactoryPublic;
 ```
 
 ## Tests
