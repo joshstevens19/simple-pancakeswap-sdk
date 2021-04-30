@@ -1,0 +1,50 @@
+{
+  "name": "simple-pancake-sdk",
+  "version": "1.0.0",
+  "description": "Simple easy to understand SDK for pancakeswap",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "gen-erc20-abi": "abi-types-generator ./src/ABI/erc-20-abi.json --output=./src/ABI/types --name=erc20-contract --provider=ethers_v5",
+    "gen-pancakeswap-router-v2-abi": "abi-types-generator ./src/ABI/pancakeswap-router-v2.json --output=./src/ABI/types --name=pancakeswap-router --provider=ethers_v5",
+    "gen-pancakeswap-factory-v2-abi": "abi-types-generator ./src/ABI/pancakeswap-factory-v2.json --output=./src/ABI/types --name=pancakeswap-factory --provider=ethers_v5",
+    "gen-pancakeswap-pair-v2-abi": "abi-types-generator ./src/ABI/pancakeswap-pair-v2.json --output=./src/ABI/types --name=pancakeswap-pair --provider=ethers_v5",
+    "gen-all-contract-types": "npm run gen-erc20-abi && npm run gen-pancakeswap-router-v2-abi && npm run gen-pancakeswap-factory-v2-abi && npm run gen-pancakeswap-pair-v2-abi",
+    "prepublishOnly": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshstevens19/simple-pancakeswap-sdk.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "pancakeswap"
+  ],
+  "bugs": {
+    "url": "https://github.com/joshstevens19/simple-pancakeswap-sdk/issues"
+  },
+  "homepage": "https://github.com/joshstevens19/simple-pancakeswap-sdk#readme",
+  "dependencies": {
+    "bignumber.js": "^9.0.1",
+    "ethereum-multicall": "^2.1.0",
+    "ethers": "^5.0.26",
+    "rxjs": "^6.6.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "ethereum-abi-types-generator": "^1.0.10",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0",
+    "typescript": "^4.1.3"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "package-lock.json",
+    "README.md",
+    "LICENSE"
+  ]
+}
