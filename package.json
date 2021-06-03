@@ -1,6 +1,6 @@
 {
   "name": "simple-pancakeswap-sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Simple easy to understand SDK for pancakeswap",
   "main": "dist/index.js",
   "scripts": {

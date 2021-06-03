@@ -358,6 +358,11 @@ export class PancakeswapPairFactory {
 
     const allowanceAndBalanceOf = await this.getAllowanceAndBalanceOfForFromToken();
 
+    const hasEnoughAllowance = this._hasGotEnoughAllowance(
+      erc20Amount.toFixed(),
+      allowanceAndBalanceOf.allowance
+    );
+
     const tradeContext: TradeContext = {
       baseConvertRequest: erc20Amount.toFixed(),
       minAmountConvertQuote: convertQuoteWithSlippage.toFixed(
@@ -371,10 +376,10 @@ export class PancakeswapPairFactory {
       routePathTokenMap: bestRouteQuote.routePathArrayTokenMap,
       routeText: bestRouteQuote.routeText,
       routePath: bestRouteQuote.routePathArray,
-      hasEnoughAllowance: this._hasGotEnoughAllowance(
-        erc20Amount.toFixed(),
-        allowanceAndBalanceOf.allowance
-      ),
+      hasEnoughAllowance,
+      approvalTransaction: !hasEnoughAllowance
+        ? await this.generateApproveMaxAllowanceData()
+        : undefined,
       toToken: this.toToken,
       fromToken: this.fromToken,
       fromBalance: this.hasGotEnoughBalanceErc20(
@@ -419,6 +424,11 @@ export class PancakeswapPairFactory {
 
     const allowanceAndBalanceOf = await this.getAllowanceAndBalanceOfForFromToken();
 
+    const hasEnoughAllowance = this._hasGotEnoughAllowance(
+      erc20Amount.toFixed(),
+      allowanceAndBalanceOf.allowance
+    );
+
     const tradeContext: TradeContext = {
       baseConvertRequest: erc20Amount.toFixed(),
       minAmountConvertQuote: convertQuoteWithSlippage.toFixed(
@@ -432,10 +442,10 @@ export class PancakeswapPairFactory {
       routePathTokenMap: bestRouteQuote.routePathArrayTokenMap,
       routeText: bestRouteQuote.routeText,
       routePath: bestRouteQuote.routePathArray,
-      hasEnoughAllowance: this._hasGotEnoughAllowance(
-        erc20Amount.toFixed(),
-        allowanceAndBalanceOf.allowance
-      ),
+      hasEnoughAllowance,
+      approvalTransaction: !hasEnoughAllowance
+        ? await this.generateApproveMaxAllowanceData()
+        : undefined,
       toToken: this.toToken,
       fromToken: this.fromToken,
       fromBalance: this.hasGotEnoughBalanceErc20(

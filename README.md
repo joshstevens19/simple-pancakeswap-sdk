@@ -315,6 +315,19 @@ export interface TradeContext {
   // and this returns false but then you do the approval
   // transaction, this old context will still say false
   hasEnoughAllowance: boolean;
+  // this is the transaction you need to send first if approve the swap
+  // but do not have any allowance for the router to move the token on their
+  // behalf. This will be undefined if you do not need to send this transaction.
+  // it DOES not estimate gas so you should fill in those blanks before
+  // you send it (most dApps have a picker to choose the speed)
+  approvalTransaction:
+    | {
+        to: string;
+        from: string;
+        data: string;
+        value: string;
+      }
+    | undefined;
   // the from token info
   fromToken: Token;
   // the to token info
@@ -601,6 +614,7 @@ console.log(trade);
       },
   ],
   hasEnoughAllowance: true,
+  approvalTransaction: undefined,
   toToken: {
     chainId: 56,
     contractAddress: '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1',
@@ -691,6 +705,7 @@ console.log(trade);
     '0x101d82428437127bf1608f699cd651e6abf9766e',
   ],
   hasEnoughAllowance: true,
+  approvalTransaction: undefined,
   toToken: {
     chainId: 56,
     contractAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
@@ -3154,6 +3169,7 @@ console.log(trade);
     },
   ],
   hasEnoughAllowance: true,
+  approvalTransaction: undefined,
   toToken: {
     chainId: 56,
     contractAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -3184,6 +3200,10 @@ console.log(trade);
 // once done with trade aka they have sent it and you don't need it anymore call
 trade.destroy();
 ```
+
+## Approval transaction
+
+Please note when you do your trade if `approvalTransaction` is defined the user has not enough allowance to perform this trade aka the router can not move on behalf of the user. This will generate the transaction for the approval of moving tokens for the user. This uses the max hex possible which means they will not have to do this again if they want to swap from the SAME from token again later. Please note the approval is per each erc20 token, so if they picked another from token after they swapped they would need to do this again. You have to send the and sign the transaction from within your dApp. Remember when they do not have enough allowance it will mean doing 2 transaction, 1 to extend the allowance using this transaction then the next one to actually execute the trade. On `eth` > `erc20` the `approvalTransaction` will always be undefined it will always throw an error as you only need to do this when moving `erc20 > eth` and `erc20 > erc20`.
 
 ### hasGotEnoughAllowance
 
@@ -3248,6 +3268,8 @@ console.log(allowance);
 ```
 
 ### generateApproveMaxAllowanceData
+
+**NOTE** We advise using the `approvalTransaction` property on `TradeContext` then manually doing this.
 
 This method will generate the transaction for the approval of moving tokens for the user. This uses the max hex possible which means they will not have to do this again if they want to swap from the SAME from token again later. Please note the approval is per each erc20 token, so if they picked another from token after they swapped they would need to do this again. You have to send the and sign the transaction from within your dApp. Remember when they do not have enough allowance it will mean doing 2 transaction, 1 to extend the allowance using this transaction then the next one to actually execute the trade. If you call this when doing `bnb` > `erc20` it will always throw an error as you only need to do this when moving `erc20 > bnb` and `erc20 > erc20`.
 

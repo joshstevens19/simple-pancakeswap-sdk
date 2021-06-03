@@ -11,7 +11,7 @@ const routeTest = async () => {
   const toTokenContractAddress = '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1';
   const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
 
-  const uniswapPair = new PancakeswapPair({
+  const pancakeSwapPair = new PancakeswapPair({
     fromTokenContractAddress,
     toTokenContractAddress,
     ethereumAddress,
@@ -25,10 +25,10 @@ const routeTest = async () => {
     }),
   });
 
-  const uniswapPairFactory = await uniswapPair.createFactory();
+  const pancakeSwapPairFactory = await pancakeSwapPair.createFactory();
 
   try {
-    const trade = await uniswapPairFactory.trade('10');
+    const trade = await pancakeSwapPairFactory.trade('10');
     console.log(trade);
 
     console.log(new Date().getTime());

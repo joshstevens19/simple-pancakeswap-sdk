@@ -2,10 +2,8 @@ import { Contract, ContractInterface, providers } from 'ethers';
 
 export class EthersProvider {
   private _ethersProvider: providers.BaseProvider;
-  constructor() {
-    this._ethersProvider = new providers.StaticJsonRpcProvider(
-      'https://bsc-dataseed.binance.org/'
-    );
+  constructor(providerUrl: string = 'https://bsc-dataseed.binance.org/') {
+    this._ethersProvider = new providers.StaticJsonRpcProvider(providerUrl);
   }
 
   /**

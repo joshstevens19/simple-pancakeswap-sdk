@@ -17,17 +17,17 @@ export class ContractContext {
   public static pairAddress = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
 
   /**
-   * Uniswap v2 router
+   * PancakeSwap v2 router
    */
   public static routerAbi: JsonFragment[] = require('../ABI/pancakeswap-router-v2.json');
 
   /**
-   * Uniswap v2 factory
+   * PancakeSwap v2 factory
    */
   public static factoryAbi: JsonFragment[] = require('../ABI/pancakeswap-factory-v2.json');
 
   /**
-   * Uniswap v2 pair
+   * PancakeSwap v2 pair
    */
   public static pairAbi: JsonFragment[] = require('../ABI/pancakeswap-pair-v2.json');
 

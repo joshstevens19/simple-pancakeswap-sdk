@@ -54,6 +54,13 @@ export class PancakeswapPair {
       );
     }
 
+    if (this._pancakeswapPairContext.providerUrl) {
+      this._ethersProvider = new EthersProvider(
+        this._pancakeswapPairContext.providerUrl
+      );
+      return;
+    }
+
     this._ethersProvider = new EthersProvider();
   }
 

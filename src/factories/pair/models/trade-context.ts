@@ -14,6 +14,7 @@ export interface TradeContext {
   routePath: string[];
   allTriedRoutesQuotes: RouteQuote[];
   hasEnoughAllowance: boolean;
+  approvalTransaction?: Transaction | undefined;
   fromToken: Token;
   toToken: Token;
   fromBalance: {
