@@ -30,6 +30,7 @@ import { TokenRoutes } from './models/token-routes';
 export class PancakeswapRouterFactory {
   private _multicall = new Multicall({
     ethersProvider: this._ethersProvider.provider,
+    tryAggregate: true
   });
 
   constructor(
@@ -93,9 +94,8 @@ export class PancakeswapRouterFactory {
 
     const results = contractCallResults.results[contractCallContext.reference];
 
-    const availablePairs = results.callsReturnContext.filter(
-      (c) => c.returnValues[0] !== '0x0000000000000000000000000000000000000000'
-    );
+    const availablePairs1 = results.callsReturnContext.filter((c) => c.returnValues[0] !== '0x0000000000000000000000000000000000000000');
+    const availablePairs = availablePairs1.filter((c) => c.success !== false);
 
     const fromTokenRoutes: TokenRoutes = {
       token: this._fromToken,
@@ -385,6 +385,9 @@ export class PancakeswapRouterFactory {
       ) {
         const callReturnContext =
           contractCallReturnContext.callsReturnContext[i];
+        if(callReturnContext.success === false){
+          continue
+        }
 
         switch (tradePath) {
           case TradePath.ethToErc20:
