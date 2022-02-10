@@ -1,6 +1,6 @@
 {
   "name": "simple-bakeryswap-sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simple easy to understand SDK for bakeryswap",
   "main": "dist/index.js",
   "scripts": {

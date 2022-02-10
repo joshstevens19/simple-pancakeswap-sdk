@@ -42,7 +42,7 @@ export interface ContractCallOverrides {
 export declare type PancakeswapRouterEvents = undefined;
 export interface PancakeswapRouterEventsContext {
 }
-export declare type PancakeswapRouterMethodNames = 'BNB' | 'addLiquidity' | 'addLiquidityETH' | 'factory' | 'getAmountIn' | 'getAmountOut' | 'getAmountsIn' | 'getAmountsOut' | 'quote' | 'removeLiquidity' | 'removeLiquidityETH' | 'removeLiquidityETHSupportingFeeOnTransferTokens' | 'removeLiquidityETHWithPermit' | 'removeLiquidityETHWithPermitSupportingFeeOnTransferTokens' | 'removeLiquidityWithPermit' | 'swapETHForExactTokens' | 'swapExactETHForTokens' | 'swapExactETHForTokensSupportingFeeOnTransferTokens' | 'swapExactTokensForETH' | 'swapExactTokensForETHSupportingFeeOnTransferTokens' | 'swapExactTokensForTokens' | 'swapExactTokensForTokensSupportingFeeOnTransferTokens' | 'swapTokensForExactETH' | 'swapTokensForExactTokens';
+export declare type PancakeswapRouterMethodNames = 'BNB' | 'addLiquidity' | 'addLiquidityBNB' | 'factory' | 'getAmountIn' | 'getAmountOut' | 'getAmountsIn' | 'getAmountsOut' | 'quote' | 'removeLiquidity' | 'removeLiquidityBNB' | 'removeLiquidityBNBSupportingFeeOnTransferTokens' | 'removeLiquidityBNBWithPermit' | 'removeLiquidityBNBWithPermitSupportingFeeOnTransferTokens' | 'removeLiquidityWithPermit' | 'swapBNBForExactTokens' | 'swapExactBNBForTokens' | 'swapExactBNBForTokensSupportingFeeOnTransferTokens' | 'swapExactTokensForBNB' | 'swapExactTokensForBNBSupportingFeeOnTransferTokens' | 'swapExactTokensForTokens' | 'swapExactTokensForTokensSupportingFeeOnTransferTokens' | 'swapTokensForExactBNB' | 'swapTokensForExactTokens';
 export interface PancakeswapRouter {
     /**
      * Payable: false
@@ -74,11 +74,11 @@ export interface PancakeswapRouter {
      * @param token Type: address, Indexed: false
      * @param amountTokenDesired Type: uint256, Indexed: false
      * @param amountTokenMin Type: uint256, Indexed: false
-     * @param amountETHMin Type: uint256, Indexed: false
+     * @param amountBNBMin Type: uint256, Indexed: false
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    addLiquidityETH(token: string, amountTokenDesired: BigNumberish, amountTokenMin: BigNumberish, amountETHMin: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    addLiquidityBNB(token: string, amountTokenDesired: BigNumberish, amountTokenMin: BigNumberish, amountBNBMin: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: true
@@ -156,11 +156,11 @@ export interface PancakeswapRouter {
      * @param token Type: address, Indexed: false
      * @param liquidity Type: uint256, Indexed: false
      * @param amountTokenMin Type: uint256, Indexed: false
-     * @param amountETHMin Type: uint256, Indexed: false
+     * @param amountBNBMin Type: uint256, Indexed: false
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    removeLiquidityETH(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountETHMin: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    removeLiquidityBNB(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountBNBMin: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -169,11 +169,11 @@ export interface PancakeswapRouter {
      * @param token Type: address, Indexed: false
      * @param liquidity Type: uint256, Indexed: false
      * @param amountTokenMin Type: uint256, Indexed: false
-     * @param amountETHMin Type: uint256, Indexed: false
+     * @param amountBNBMin Type: uint256, Indexed: false
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    removeLiquidityETHSupportingFeeOnTransferTokens(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountETHMin: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    removeLiquidityBNBSupportingFeeOnTransferTokens(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountBNBMin: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -182,7 +182,7 @@ export interface PancakeswapRouter {
      * @param token Type: address, Indexed: false
      * @param liquidity Type: uint256, Indexed: false
      * @param amountTokenMin Type: uint256, Indexed: false
-     * @param amountETHMin Type: uint256, Indexed: false
+     * @param amountBNBMin Type: uint256, Indexed: false
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      * @param approveMax Type: bool, Indexed: false
@@ -190,7 +190,7 @@ export interface PancakeswapRouter {
      * @param r Type: bytes32, Indexed: false
      * @param s Type: bytes32, Indexed: false
      */
-    removeLiquidityETHWithPermit(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountETHMin: BigNumberish, to: string, deadline: BigNumberish, approveMax: boolean, v: BigNumberish, r: Arrayish, s: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    removeLiquidityBNBWithPermit(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountBNBMin: BigNumberish, to: string, deadline: BigNumberish, approveMax: boolean, v: BigNumberish, r: Arrayish, s: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -199,7 +199,7 @@ export interface PancakeswapRouter {
      * @param token Type: address, Indexed: false
      * @param liquidity Type: uint256, Indexed: false
      * @param amountTokenMin Type: uint256, Indexed: false
-     * @param amountETHMin Type: uint256, Indexed: false
+     * @param amountBNBMin Type: uint256, Indexed: false
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      * @param approveMax Type: bool, Indexed: false
@@ -207,7 +207,7 @@ export interface PancakeswapRouter {
      * @param r Type: bytes32, Indexed: false
      * @param s Type: bytes32, Indexed: false
      */
-    removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountETHMin: BigNumberish, to: string, deadline: BigNumberish, approveMax: boolean, v: BigNumberish, r: Arrayish, s: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    removeLiquidityBNBWithPermitSupportingFeeOnTransferTokens(token: string, liquidity: BigNumberish, amountTokenMin: BigNumberish, amountBNBMin: BigNumberish, to: string, deadline: BigNumberish, approveMax: boolean, v: BigNumberish, r: Arrayish, s: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -236,7 +236,7 @@ export interface PancakeswapRouter {
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    swapETHForExactTokens(amountOut: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    swapBNBForExactTokens(amountOut: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: true
      * Constant: false
@@ -247,7 +247,7 @@ export interface PancakeswapRouter {
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    swapExactETHForTokens(amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    swapExactBNBForTokens(amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: true
      * Constant: false
@@ -258,7 +258,7 @@ export interface PancakeswapRouter {
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    swapExactBNBForTokensSupportingFeeOnTransferTokens(amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -270,7 +270,7 @@ export interface PancakeswapRouter {
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    swapExactTokensForETH(amountIn: BigNumberish, amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    swapExactTokensForBNB(amountIn: BigNumberish, amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -282,7 +282,7 @@ export interface PancakeswapRouter {
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn: BigNumberish, amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    swapExactTokensForBNBSupportingFeeOnTransferTokens(amountIn: BigNumberish, amountOutMin: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false
@@ -318,7 +318,7 @@ export interface PancakeswapRouter {
      * @param to Type: address, Indexed: false
      * @param deadline Type: uint256, Indexed: false
      */
-    swapTokensForExactETH(amountOut: BigNumberish, amountInMax: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+    swapTokensForExactBNB(amountOut: BigNumberish, amountInMax: BigNumberish, path: string[], to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
     /**
      * Payable: false
      * Constant: false

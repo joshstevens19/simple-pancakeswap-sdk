@@ -181,7 +181,7 @@ class PancakeswapPairFactory {
     hasGotEnoughBalanceEth(amount) {
         return __awaiter(this, void 0, void 0, function* () {
             const balance = yield this._pancakeswapPairFactoryContext.ethersProvider.balanceOf(this._pancakeswapPairFactoryContext.ethereumAddress);
-            const bigNumberBalance = new bignumber_js_1.default(balance).shiftedBy(constants_1.Constants.ETH_MAX_DECIMALS * -1);
+            const bigNumberBalance = new bignumber_js_1.default(balance).shiftedBy(constants_1.Constants.BNB_MAX_DECIMALS * -1);
             if (new bignumber_js_1.default(amount).isGreaterThan(bigNumberBalance)) {
                 return {
                     hasEnough: false,
@@ -390,7 +390,7 @@ class PancakeswapPairFactory {
             .shiftedBy(this.toToken.decimals)
             .decimalPlaces(0);
         const hex = hexlify_1.hexlify(convertedMinTokens);
-        return this._pancakeswapRouterContractFactory.swapExactETHForTokens(hex, routePathArray, this._pancakeswapPairFactoryContext.ethereumAddress, deadline);
+        return this._pancakeswapRouterContractFactory.swapExactBNBForTokens(hex, routePathArray, this._pancakeswapPairFactoryContext.ethereumAddress, deadline);
     }
     /**
      * Generate trade amount erc20 > eth
@@ -405,7 +405,7 @@ class PancakeswapPairFactory {
             .shiftedBy(this.fromToken.decimals)
             .decimalPlaces(0);
         const ethAmountOutWei = hexlify_1.hexlify(parse_ether_1.parseEther(ethAmountOutMin));
-        return this._pancakeswapRouterContractFactory.swapExactTokensForETH(hexlify_1.hexlify(amountIn), ethAmountOutWei, routePathArray, this._pancakeswapPairFactoryContext.ethereumAddress, deadline);
+        return this._pancakeswapRouterContractFactory.swapExactTokensForBNB(hexlify_1.hexlify(amountIn), ethAmountOutWei, routePathArray, this._pancakeswapPairFactoryContext.ethereumAddress, deadline);
     }
     /**
      * Generate trade amount erc20 > erc20

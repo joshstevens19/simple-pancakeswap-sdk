@@ -56,7 +56,7 @@ class PancakeswapRouterFactory {
                     this.mainCurrenciesPairsForCOMP,
                     this.mainCurrenciesPairsForDAI,
                     this.mainCurrenciesPairsForUSDC,
-                    this.mainCurrenciesPairsForWETH,
+                    this.mainCurrenciesPairsForWBNB,
                     [[this._fromToken, this._toToken]],
                 ];
             }
@@ -361,10 +361,10 @@ class PancakeswapRouterFactory {
                 this.COMPTokenForConnectedNetwork,
                 this.USDCTokenForConnectedNetwork,
                 this.DAITokenForConnectedNetwork,
-                this.WETHTokenForConnectedNetwork,
+                this.WBNBTokenForConnectedNetwork,
             ];
         }
-        return [this.WETHTokenForConnectedNetwork];
+        return [this.WBNBTokenForConnectedNetwork];
     }
     get mainCurrenciesPairsForFromToken() {
         const pairs = [
@@ -372,7 +372,7 @@ class PancakeswapRouterFactory {
             [this._fromToken, this.COMPTokenForConnectedNetwork],
             [this._fromToken, this.USDCTokenForConnectedNetwork],
             [this._fromToken, this.DAITokenForConnectedNetwork],
-            [this._fromToken, this.WETHTokenForConnectedNetwork],
+            [this._fromToken, this.WBNBTokenForConnectedNetwork],
         ];
         return pairs.filter((t) => t[0].contractAddress !== t[1].contractAddress);
     }
@@ -382,7 +382,7 @@ class PancakeswapRouterFactory {
             [this.COMPTokenForConnectedNetwork, this._toToken],
             [this.USDCTokenForConnectedNetwork, this._toToken],
             [this.DAITokenForConnectedNetwork, this._toToken],
-            [this.WETHTokenForConnectedNetwork, this._toToken],
+            [this.WBNBTokenForConnectedNetwork, this._toToken],
         ];
         return pairs.filter((t) => t[0].contractAddress !== t[1].contractAddress);
     }
@@ -391,7 +391,7 @@ class PancakeswapRouterFactory {
             [this.USDTTokenForConnectedNetwork, this.COMPTokenForConnectedNetwork],
             [this.USDTTokenForConnectedNetwork, this.DAITokenForConnectedNetwork],
             [this.USDTTokenForConnectedNetwork, this.USDCTokenForConnectedNetwork],
-            [this.USDTTokenForConnectedNetwork, this.WETHTokenForConnectedNetwork],
+            [this.USDTTokenForConnectedNetwork, this.WBNBTokenForConnectedNetwork],
         ];
     }
     get mainCurrenciesPairsForCOMP() {
@@ -399,13 +399,13 @@ class PancakeswapRouterFactory {
             [this.COMPTokenForConnectedNetwork, this.USDTTokenForConnectedNetwork],
             [this.COMPTokenForConnectedNetwork, this.DAITokenForConnectedNetwork],
             [this.COMPTokenForConnectedNetwork, this.USDCTokenForConnectedNetwork],
-            [this.COMPTokenForConnectedNetwork, this.WETHTokenForConnectedNetwork],
+            [this.COMPTokenForConnectedNetwork, this.WBNBTokenForConnectedNetwork],
         ];
     }
     get mainCurrenciesPairsForDAI() {
         return [
             [this.DAITokenForConnectedNetwork, this.COMPTokenForConnectedNetwork],
-            [this.DAITokenForConnectedNetwork, this.WETHTokenForConnectedNetwork],
+            [this.DAITokenForConnectedNetwork, this.WBNBTokenForConnectedNetwork],
         ];
     }
     get mainCurrenciesPairsForUSDC() {
@@ -413,15 +413,15 @@ class PancakeswapRouterFactory {
             [this.USDCTokenForConnectedNetwork, this.USDTTokenForConnectedNetwork],
             [this.USDCTokenForConnectedNetwork, this.COMPTokenForConnectedNetwork],
             [this.USDCTokenForConnectedNetwork, this.DAITokenForConnectedNetwork],
-            [this.USDCTokenForConnectedNetwork, this.WETHTokenForConnectedNetwork],
+            [this.USDCTokenForConnectedNetwork, this.WBNBTokenForConnectedNetwork],
         ];
     }
-    get mainCurrenciesPairsForWETH() {
+    get mainCurrenciesPairsForWBNB() {
         return [
-            [this.WETHTokenForConnectedNetwork, this.USDTTokenForConnectedNetwork],
-            [this.WETHTokenForConnectedNetwork, this.COMPTokenForConnectedNetwork],
-            [this.WETHTokenForConnectedNetwork, this.DAITokenForConnectedNetwork],
-            [this.WETHTokenForConnectedNetwork, this.USDCTokenForConnectedNetwork],
+            [this.WBNBTokenForConnectedNetwork, this.USDTTokenForConnectedNetwork],
+            [this.WBNBTokenForConnectedNetwork, this.COMPTokenForConnectedNetwork],
+            [this.WBNBTokenForConnectedNetwork, this.DAITokenForConnectedNetwork],
+            [this.WBNBTokenForConnectedNetwork, this.USDCTokenForConnectedNetwork],
         ];
     }
     get USDTTokenForConnectedNetwork() {
@@ -436,7 +436,7 @@ class PancakeswapRouterFactory {
     get USDCTokenForConnectedNetwork() {
         return usdc_1.USDC.token();
     }
-    get WETHTokenForConnectedNetwork() {
+    get WBNBTokenForConnectedNetwork() {
         return bnb_1.BNB.token();
     }
 }

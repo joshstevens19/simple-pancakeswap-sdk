@@ -70,10 +70,10 @@ export declare class PancakeswapRouterFactory {
     private get mainCurrenciesPairsForCOMP();
     private get mainCurrenciesPairsForDAI();
     private get mainCurrenciesPairsForUSDC();
-    private get mainCurrenciesPairsForWETH();
+    private get mainCurrenciesPairsForWBNB();
     private get USDTTokenForConnectedNetwork();
     private get COMPTokenForConnectedNetwork();
     private get DAITokenForConnectedNetwork();
     private get USDCTokenForConnectedNetwork();
-    private get WETHTokenForConnectedNetwork();
+    private get WBNBTokenForConnectedNetwork();
 }
