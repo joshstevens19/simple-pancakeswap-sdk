@@ -233,7 +233,7 @@ export class PancakeswapPairFactory {
     );
 
     const bigNumberBalance = new BigNumber(balance).shiftedBy(
-      Constants.ETH_MAX_DECIMALS * -1
+      Constants.BNB_MAX_DECIMALS * -1
     );
 
     if (new BigNumber(amount).isGreaterThan(bigNumberBalance)) {
@@ -531,7 +531,7 @@ export class PancakeswapPairFactory {
 
     const hex = hexlify(convertedMinTokens);
 
-    return this._pancakeswapRouterContractFactory.swapExactETHForTokens(
+    return this._pancakeswapRouterContractFactory.swapExactBNBForTokens(
       hex,
       routePathArray,
       this._pancakeswapPairFactoryContext.ethereumAddress,
@@ -559,7 +559,7 @@ export class PancakeswapPairFactory {
 
     const ethAmountOutWei = hexlify(parseEther(ethAmountOutMin));
 
-    return this._pancakeswapRouterContractFactory.swapExactTokensForETH(
+    return this._pancakeswapRouterContractFactory.swapExactTokensForBNB(
       hexlify(amountIn),
       ethAmountOutWei,
       routePathArray,

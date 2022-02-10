@@ -36,17 +36,17 @@ export class PancakeswapRouterContractFactory {
     );
   }
 
-  public addLiquidityETH(
+  public addLiquidityBNB(
     token: string,
     amountTokenDesired: BigNumberish,
     amountTokenMin: BigNumberish,
-    amountETHMin: BigNumberish,
+    amountBNBMin: BigNumberish,
     to: string,
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'addLiquidityETH',
-      [token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline]
+      'addLiquidityBNB',
+      [token, amountTokenDesired, amountTokenMin, amountBNBMin, to, deadline]
     );
   }
 
@@ -90,39 +90,39 @@ export class PancakeswapRouterContractFactory {
     );
   }
 
-  public removeLiquidityETH(
+  public removeLiquidityBNB(
     token: string,
     liquidity: BigNumberish,
     amountTokenMin: BigNumberish,
-    amountETHMin: BigNumberish,
+    amountBNBMin: BigNumberish,
     to: string,
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
       'removeLiquidity',
-      [token, liquidity, amountTokenMin, amountETHMin, to, deadline]
+      [token, liquidity, amountTokenMin, amountBNBMin, to, deadline]
     );
   }
 
-  public removeLiquidityETHSupportingFeeOnTransferTokens(
+  public removeLiquidityBNBSupportingFeeOnTransferTokens(
     token: string,
     liquidity: BigNumberish,
     amountTokenMin: BigNumberish,
-    amountETHMin: BigNumberish,
+    amountBNBMin: BigNumberish,
     to: string,
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityETHSupportingFeeOnTransferTokens',
-      [token, liquidity, amountTokenMin, amountETHMin, to, deadline]
+      'removeLiquidityBNBSupportingFeeOnTransferTokens',
+      [token, liquidity, amountTokenMin, amountBNBMin, to, deadline]
     );
   }
 
-  public removeLiquidityETHWithPermit(
+  public removeLiquidityBNBWithPermit(
     token: string,
     liquidity: BigNumberish,
     amountTokenMin: BigNumberish,
-    amountETHMin: BigNumberish,
+    amountBNBMin: BigNumberish,
     to: string,
     deadline: BigNumberish,
     approveMax: boolean,
@@ -131,12 +131,12 @@ export class PancakeswapRouterContractFactory {
     s: BytesLike
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityETHWithPermit',
+      'removeLiquidityBNBWithPermit',
       [
         token,
         liquidity,
         amountTokenMin,
-        amountETHMin,
+        amountBNBMin,
         to,
         deadline,
         approveMax,
@@ -147,11 +147,11 @@ export class PancakeswapRouterContractFactory {
     );
   }
 
-  public removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
+  public removeLiquidityBNBWithPermitSupportingFeeOnTransferTokens(
     token: string,
     liquidity: BigNumberish,
     amountTokenMin: BigNumberish,
-    amountETHMin: BigNumberish,
+    amountBNBMin: BigNumberish,
     to: string,
     deadline: BigNumberish,
     approveMax: boolean,
@@ -160,12 +160,12 @@ export class PancakeswapRouterContractFactory {
     s: BytesLike
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityETHWithPermitSupportingFeeOnTransferTokens',
+      'removeLiquidityBNBWithPermitSupportingFeeOnTransferTokens',
       [
         token,
         liquidity,
         amountTokenMin,
-        amountETHMin,
+        amountBNBMin,
         to,
         deadline,
         approveMax,
@@ -207,31 +207,31 @@ export class PancakeswapRouterContractFactory {
     );
   }
 
-  public swapExactETHForTokens(
+  public swapExactBNBForTokens(
     amountOutMin: BigNumberish,
     path: string[],
     to: string,
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactETHForTokens',
+      'swapExactBNBForTokens',
       [amountOutMin, path, to, deadline]
     );
   }
 
-  public swapETHForExactTokens(
+  public swapBNBForExactTokens(
     amountOut: BigNumberish,
     path: string[],
     to: string,
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapETHForExactTokens',
+      'swapBNBForExactTokens',
       [amountOut, path, to, deadline]
     );
   }
 
-  public swapExactETHForTokensSupportingFeeOnTransferTokens(
+  public swapExactBNBForTokensSupportingFeeOnTransferTokens(
     amountIn: BigNumberish,
     amountOutMin: BigNumberish,
     path: string[],
@@ -239,12 +239,12 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactETHForTokensSupportingFeeOnTransferTokens',
+      'swapExactBNBForTokensSupportingFeeOnTransferTokens',
       [amountIn, amountOutMin, path, to, deadline]
     );
   }
 
-  public swapExactTokensForETH(
+  public swapExactTokensForBNB(
     amountIn: BigNumberish,
     amountOutMin: BigNumberish,
     path: string[],
@@ -252,12 +252,12 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactTokensForETH',
+      'swapExactTokensForBNB',
       [amountIn, amountOutMin, path, to, deadline]
     );
   }
 
-  public swapTokensForExactETH(
+  public swapTokensForExactBNB(
     amountOut: BigNumberish,
     amountInMax: BigNumberish,
     path: string[],
@@ -265,12 +265,12 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapTokensForExactETH',
+      'swapTokensForExactBNB',
       [amountOut, amountInMax, path, to, deadline]
     );
   }
 
-  public swapExactTokensForETHSupportingFeeOnTransferTokens(
+  public swapExactTokensForBNBSupportingFeeOnTransferTokens(
     amountIn: BigNumberish,
     amountOutMin: BigNumberish,
     path: string[],
@@ -278,7 +278,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactTokensForETHSupportingFeeOnTransferTokens',
+      'swapExactTokensForBNBSupportingFeeOnTransferTokens',
       [amountIn, amountOutMin, path, to, deadline]
     );
   }
