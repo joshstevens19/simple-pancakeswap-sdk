@@ -32,7 +32,7 @@ const routeTest = async () => {
     console.log(trade);
 
     console.log(new Date().getTime());
-  } catch (error) {
+  } catch (error: any) {
     console.log(error.message);
   }
 

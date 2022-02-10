@@ -4,17 +4,17 @@ export class ContractContext {
   /**
    * The pancakeswap router address
    */
-  public static routerAddress = '0xCDe540d7eAFE93aC5fE6233Bee57E1270D3E330F';
+  public static routerAddress = '0x10ED43C718714eb63d5aA57B78B54704E256024E';
 
   /**
    * The pancakeswap factory address
    */
-  public static factoryAddress = '0x01bF7C66c6BD861915CdaaE475042d3c4BaE16A7';
+  public static factoryAddress = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
 
   /**
    * The pancakeswap pair address
    */
-  public static pairAddress = '0x01bF7C66c6BD861915CdaaE475042d3c4BaE16A7';
+  public static pairAddress = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
 
   /**
    * PancakeSwap v2 router
